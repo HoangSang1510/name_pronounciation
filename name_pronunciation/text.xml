@@ -1,0 +1,1236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Theo dõi điều trị -->
+    <record id="view_medical_treatment_icsi_ivf_form" model="ir.ui.view">
+        <field name="name">view.medical.treatment.icsi.ivf.form</field>
+        <field name="model">medical.treatment</field>
+        <field name="priority">16</field>
+        <field name="arch" type="xml">
+            <form string="Theo dõi điều trị ICSI/IVF" delete="false">
+                <field name="active" invisible="1"/>
+                <header>
+                    <button name="action_create_result" string="Create Treatment Result" type="object" confirm="Are you sure you want to create treatment result?" class="oe_highlight"/>                    
+                    <button name="action_lock" string="Lock" type="object" confirm="Are you sure you want to lock treatment?"
+                        class="btn-secondary"
+                        attrs="{'invisible': ['|', ('is_locked', '=', True), ('last_stage', '=', False)]}"/>
+                    <button name="action_unlock" string="Unlock" type="object"
+                        class="btn-secondary"
+                        attrs="{'invisible': ['|', ('is_locked', '=', False),('last_stage', '=', False)]}"
+                        groups="ims_treatment.group_manager"/>
+                    <field name="state_id" widget="statusbar" readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="button_list_culture" type="object" class="oe_stat_button" attrs="{'invisible': ['|',('culture_ids','=',[]), ('gender', '=', 'male')]}" style="width: 12.5%;">
+                            <div class="fa fa-fw o_button_icon">
+                                <img src="/ims_treatment/static/description/icon_cultured.png" alt="Cultured"/>
+                            </div>
+                            <label for="culture_count" attrs="{'invisible': [('culture_count','!=',0)]}"/>
+                            <field name="culture_count" widget="statinfo" attrs="{'invisible': [('culture_count','=',0)]}"/>
+                        </button>
+                        <button name="button_list_test" type="object" class="oe_stat_button" style="width: 12.5%;" icon="fa-flask">
+                            <label for="test_count" attrs="{'invisible': [('test_count','!=',0)]}"/>
+                            <field name="test_count" widget="statinfo" attrs="{'invisible': [('test_count','=',0)]}"/>
+                        </button>
+                        <button name="button_list_template" type="object" class="oe_stat_button" style="width: 12.5%;">
+                            <div class="fa fa-fw o_button_icon">
+                                <img src="/ims_treatment/static/description/icon_template_archive.png" alt="Store"/>
+                            </div>
+                            <label for="template_count" attrs="{'invisible': ['|',('template_count','!=',0),('gender','!=','female')]}" string="Mẫu trữ nữ"/>
+                            <label for="template_count" attrs="{'invisible': ['|',('template_count','!=',0),('gender','!=','male')]}" string="Mẫu trữ nam"/>
+                            <field name="template_count" widget="statinfo" attrs="{'invisible': [('template_count','=',0)]}"/>
+                        </button>
+                        <button name="button_list_treatment" type="object" class="oe_stat_button" style="width: 12.5%;" icon="fa-magic">
+                            <label for="treatment_count" attrs="{'invisible': [('treatment_count','!=',0)]}"/>
+                            <field name="treatment_count" widget="statinfo" attrs="{'invisible': [('treatment_count','=',0)]}"/>
+                        </button>
+                        <button name="button_list_result_treatment" type="object" class="oe_stat_button" style="width: 12.5%;">
+                            <div class="fa fa-fw o_button_icon">
+                                <img src="/ims_treatment/static/description/icon_result.png" alt="Result"/>
+                            </div>
+                            <label for="result_treatment_count" attrs="{'invisible': [('result_treatment_count','!=',0)]}"/>
+                            <field name="result_treatment_count" widget="statinfo" attrs="{'invisible': [('result_treatment_count','=',0)]}"/>
+                        </button>
+                        <button name="button_list_assigned" type="object" class="oe_stat_button" style="width: 12.5%;">
+                            <div class="fa fa-fw o_button_icon">
+                                <img src="/ims_treatment/static/description/icon_assign.png" alt="Assign"/>
+                            </div>
+                            <label for="assigned_count" attrs="{'invisible': [('assigned_count','!=',0)]}"/>
+                            <field name="assigned_count" widget="statinfo" attrs="{'invisible': [('assigned_count','=',0)]}"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <field name="is_locked" invisible="1"/>
+                    <field name="last_stage" invisible="1"/>
+                    <label for="name" class="oe_edit_only" string="Họ Tên"/>
+                            <h1 style="font-weight:bold; color:#000000">
+                                <field name="patient_id" required="1" options="{'no_open': True, 'no_create': True, 'no_create_edit': True}"/>
+                                
+                            </h1>
+                    <group col="3" colspan="6">
+                        <group string="Thông tin chung" style="font-weight: bold" col="2">
+                            <field name="name" readonly="1"/>
+                            <field name="patient_code" readonly="1"/>
+                            <field name="internal_ref" readonly="1"/>
+                            <field name='stage_id' invisible="1"/>
+                            <field name="birthday" />
+                            <!-- <label for="birthday"/>
+                            <div>
+                                <field name="day_birth" class="oe_inline"/> - <field name="month_birth" class="oe_inline"/> - <field name="year_birth" class="oe_inline"/>
+                            </div> -->
+                            <field name="gender" required="1"/>
+                            <field name="role" invisible="1"/>
+                            <field name="loop_contact_id" readonly="1" options="{'no_open': True, 'no_create': True}" force_save="1"/>
+                            <field name="mobile"/>
+                            <!-- <field name="is_get_ovum" invisible="1"/> -->
+                            <field name="department_id" invisible="1"/>
+                            <field name="time_year" attrs="{'invisible': [('gender', '!=', 'female')]}"/>
+                            <field name="time_month" attrs="{'invisible': [('gender', '!=', 'female')]}"/>
+                            
+                        </group>
+
+                        <group string="Thông tin điều trị" style="font-weight: bold" col="2">
+                            <field name="technical" invisible="1"/>
+                            <field name="technique_id" required="1"
+                                options="{'no_open': True, 'no_create': True}"
+                                domain="[('code', 'in', ['IUI/QHTN','FET','ICSI/IVF'])]"/>
+                            <field name="doctor_id" required="1" context="{'default_is_doctor': 1}" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="times_use" readonly='0'/>
+                            
+                            <field name="medical_protocol_id"
+                                attrs="{'invisible': [('gender', '!=', 'female')]}"
+                                options="{'no_open': True, 'no_create': True}"
+                                domain="[('technique_ids', 'in', [technique_id])]"/>
+                            <field name="medical_protocol_id_note" attrs="{'invisible': ['|',('show_note_protocol', '=', False),('gender', '!=', 'female')]}"/>
+                            <field name="para" attrs="{'invisible': [('gender','!=','female')]}"/>
+                            <field name="date_end_menses" required="0" attrs="{'invisible': [('gender','!=','female')]}"/>
+                            <field name="cause_ids" widget="many2many_tags"
+                                attrs="{'invisible': [('gender', '!=', 'female')]}"
+                                options="{'color_field': 'color', 'no_open': True, 'no_create': True}"/>
+                            <field name="cause_ids_note"
+                                attrs="{'invisible': ['|', ('show_note_cause', '=', False),('gender', '!=', 'female')]}"/>
+                            <field name="technical_sub_id" invisible="1"/>
+                            <field name="manual_readonly_tab_lab" invisible="1"/>
+                            <field name="show_note_cause" invisible="1"/>
+                            <field name="show_note_protocol" invisible="1"/>
+                        </group>
+                        <group string="Kế hoạch điều trị" style="font-weight: bold" col="2">
+                            <field name="is_ovum" attrs="{'invisible': ['|',('technical','not in',('ICSI/IVF')),('gender','=','male')]}"/>
+                            <field name="egg_donor_id" options="{'no_open': True, 'no_create': True}" attrs="{'invisible': ['|','|',('is_ovum','!=',True),('technical','not in',('ICSI/IVF','FET')),('gender','=','male')]}"/>
+                            <field name="is_mangthai_ho" attrs="{'invisible': ['|',('technical','in',('surgery_testis', 'IUI/QHTN')),('gender','=','male')]}"/>
+                            <field name="mangthai_ho" options="{'no_open': True, 'no_create': True}" attrs="{'invisible': [('is_mangthai_ho','!=',True)]}"/>
+                            <field name="ra_trung" attrs="{'invisible': ['|',('technical','not in',('ICSI/IVF')),('gender','=','male')]}"/>
+                            <field name="is_tru" attrs="{'invisible': ['|',('technical','in',('IUI/QHTN','FET','ICSI/IVF','surgery_testis')),('gender','=','male')] }"/>
+                            <field name="is_tt_tru" attrs="{'invisible': ['|',('technical','!=','ICSI/IVF'),('gender','=','male')]}"/>
+                            <field name="is_pesa" attrs="{'invisible': [('technical','in',('IUI/QHTN','FET','surgery_testis'))]}"/>
+                            <field name="is_tese" attrs="{'invisible': [('technical','in',('IUI/QHTN','FET','surgery_testis'))]}"/>
+                            <!-- <field name="is_xin_trung" attrs="{'invisible': [('technical','in',('IUI/QHTN','FET','ICSI/IVF','surgery_testis'))]}"/> -->
+                            <field name="is_xin_tt" attrs="{'invisible': ['|',('gender','=','male'),('technical','in',('IUI/QHTN','FET','surgery_testis'))]}"/>
+                            <!-- <field name="is_aoa" attrs="{'invisible': ['|',('gender','=','male'),('technical','in',('IUI/QHTN','FET','surgery_testis'))]}"/> -->
+                            <field name="ra_embryo" attrs="{'invisible': [('technical','!=','FET')]}"/>
+                            <field name="center_id" required="0" invisible="1"/>
+                            <field name="date_of_appointment" attrs="{'invisible': [('technical','not in',('surgery_testis'))]}"/>
+                            <field name="technical_is_date_of_appointment" invisible="1"/>
+                            <label for="note_doctor" style="font-weight: bold; color:#ff0000"/>
+                                    <div>
+                                        <field name="note_doctor" nolabel="1" style="color:#ff0000"/>
+                                    </div>
+                            <label for="notes" string="Lưu ý Kế hoạch điều trị" style="font-weight: bold; color:#0066ff"/>
+                                    <div>
+                                        <field name="notes" nolabel="1" style="color:#0066ff"/>
+                                    </div>
+                            
+                        </group>
+                    </group>
+                    <group name="g_invisible" invisible="1">
+                        <field name="is_xin_tt_nam"/>
+                    </group>
+                    <group class="kanban_group_contact">
+                        <field name="contact_ids" nolabel="1" mode="kanban" context="{'patient_id': active_id}"
+                            force_save="1"
+                            attrs="{'invisible': [('loop_contact_id','=',False)]}" class="kanban_custom_contact"
+                            readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page name="1" string="Xét nghiệm"
+                                attrs="{'invisible': [('gender', '!=', 'female')]}"
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_midwife,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <field name="test_ids" nolabel="1" attrs="{'readonly': [('manual_readonly_tab_lab','=',False)]}" 
+                            context="{'default_patient_id': patient_id, 'default_role': role}">
+                                <tree string="Xét nghiệm"  > 
+                                    <field name="type"/>
+                                    <field name="group"/>
+                                    <field name="role"/>
+                                    <field name="doctor_id"/>
+                                    <field name="date"/>
+                                    <field name="doctor_perform_id"/>
+                                    <field name="date_perform" string="Giờ thực hiện"/>
+                                    <field name="date_done"/>
+                                    <field name="index_result"/>
+                                    <field name="state" string="Kết quả"/>
+                                    <field name="note"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="2" string="Theo dõi nang noãn" attrs="{'invisible': [('gender','!=','female')]}" groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_midwife,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <field name="follicular_ids" nolabel="1"
+                                    context="{'default_patient_id': patient_id, 'default_give_ovum_id': egg_donor_id}">
+                                <tree default_order="date">
+                                    <field name="period"/>
+                                    <field name="order_week" optional="hide"/>
+                                    <field name="date"/>
+                                    <field name="decision_id" class="o_list_text"/>
+                                    <!-- <field name="prescription_line_ids" widget="many2many_tags"/> -->
+                                    <field name="nang_trai"/>
+                                    <field name="total_qty_left"/>
+                                    <field name="nang_phai"/>
+                                    <field name="total_qty_right"/>
+                                    <field name="endometrium"/>
+                                    <field name="calendar_sa" optional="show" class="o_list_text"/>
+                                    <field name="calendar_tt" string="Lịch hẹn chọc hút noãn" class="o_list_text"/>
+                                    <field name="date_et" string="Ngày ET" optional="show" class="o_list_text"/>
+                                    <field name="note" optional="show"/>
+                                    <field name="name" invisible="1"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group string="Thông tin theo dõi">
+                                            <field name="technical_is_calendar_sa" invisible="1"/>
+                                            <field name="technical_is_datetime_hcg" invisible="1"/>
+                                            <field name="technical_is_date_thawing_ovum" invisible="1"/>
+                                            <field name="technical_is_calendar_tt" invisible="1"/>
+                                            <field name="patient_id" invisible="1"/>
+                                            <field name="name" readonly="1"/>
+                                            <field name="period" required="1"/>
+                                            <field name="date" required="1"/>
+                                            <field name="order_week" readonly="1"/>
+                                            <field name="hgm" invisible="1"/>
+                                            <field name="nang_trai"/>
+                                            <field name="nang_phai"/>
+                                            <field name="endometrium"/>
+                                            <field name="note_endometrium" />
+                                            <field name="give_ovum_id" invisible="1"/>
+                                        </group>
+                                        <group string="Kết quả liên quan">
+                                            <field name="decision_id" required="1"/>
+                                            <field name="image" invisible="1" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}" style="float: left !important;"/>
+                                            <field name="note"/>
+                                            <field name="patient_id" invisible="1"/>
+                                            <field name="calendar_sa"/>
+                                            <field name="datetime_hcg"/>
+                                            <field name="calendar_tt" string="Lịch hẹn chọc hút noãn"
+                                                attrs="{'required': [('decision_id', '=', 'trigger')]}"/>
+                                            
+                                            <field name="technical" invisible="1"/>
+                                            <field name="prescribe_icsi_ivf" string="Chỉ định" attrs="{'required': [('decision_id','=','trigger'),('technical','=','ICSI/IVF')],'invisible': [('technical','!=','ICSI/IVF')]}"/>
+                                            <field name="type_prescribe_icsi_ivf" readonly="1" attrs="{'invisible': [('prescribe_icsi_ivf','!=', 'other')]}"/>
+                                            <field name="date_et" string="Lịch hẹn ET"
+                                                attrs="{'invisible': ['|',('decision_id', '!=', 'trigger'),('prescribe_icsi_ivf', 'not in', ['ETD2', 'ETD3', 'ETD4', 'ETD5','ETD6'])]}"/>
+                                            <field name="thawing_ovum" />
+                                            <field name="date_thawing_ovum" attrs="{'invisible': [('thawing_ovum', '=', False)]}"/>
+                                            
+                                        </group>
+                                    </group>
+                                    <notebook>
+                                        <page name="ovums_detail" string="Chi tiết 2 bên nang BT">
+                                            <group>
+                                                <group>
+                                                    <field name="right_ovary"/>
+                                                    <field name="note_right_ovary" />
+                                                </group>
+                                                <group>
+                                                    <field name="left_ovary"/>
+                                                    <field name="note_left_ovary" />
+                                                </group>
+                                            </group>
+                                            <field name="size_ids" nolabel="1">
+                                                <tree editable="bottom">
+                                                    <field name="size" required="1" width="5.0"/>
+                                                    <field name="qty_right" width="8.0"/>
+                                                    <field name="qty_left" width="8.0"/>
+                                                </tree>
+                                                <form>
+                                                    <group col="4">
+                                                        <field name="size" required="1"/>
+                                                        <field name="qty_right"/>
+                                                        <field name="qty_left"/>
+                                                    </group>
+                                                </form>
+                                            </field>
+                                        </page>
+                                        <page string="Chỉ số nội tiết" invisible="1">
+                                            <field name="index_hormonal_ids" nolabel="1">
+                                                <tree editable="bottom">
+                                                    <field name="name" required="1"/>
+                                                    <field name="value"/>
+                                                </tree>
+                                            </field>
+                                        </page>
+                                    </notebook>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="follow_endometrium" string="Theo dõi NMTC"
+                                attrs="{'invisible': ['|','|',('gender','!=','female'),('is_ovum','=',False),('technical','!=','ICSI/IVF')]}"
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_midwife,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <field name="follow_endometrium_ids" nolabel="1"
+                                    context="{'default_patient_id': patient_id, 'default_endometrium_technical': technical, 'default_technical': technical}"
+                                    attrs="{'readonly': [('manual_readonly_tab_lab','=',False)]}"> 
+                                <tree>
+                                    <field name="period"/>
+                                    <field name="order_week" optional="hide"/>
+                                    <field name="date"/>
+                                    <field name="decision_id" class="o_list_text"/>
+                                    <field name="medical_test_result" optional="show"/>
+                                    <field name="nang_trai"/>
+                                    <field name="total_qty_left"/>
+                                    <field name="nang_phai"/>
+                                    <field name="total_qty_right"/>
+                                    <field name="endometrium"/>
+                                    <field name="calendar_sa" class="o_list_text"/>
+                                    <field name="calendar_tt" string="Lịch hẹn chọc hút noãn"
+                                        class="o_list_text"
+                                        optional="show"/>
+                                    <field name="date_et" string="Ngày ET"
+                                        class="o_list_text"
+                                        optional="show"/>
+                                    <field name="note" optional="hide"/>
+                                    <field name="name" invisible="1"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group string="Thông tin theo dõi">
+                                            <field name="technical_is_calendar_sa" invisible="1"/>
+                                            <field name="technical_is_datetime_hcg" invisible="1"/>
+                                            <field name="technical_is_date_thawing_ovum" invisible="1"/>
+                                            <field name="technical_is_calendar_tt" invisible="1"/>
+                                            <field name="patient_id" invisible="1"/>
+                                            <field name="name" readonly="1"/>
+                                            <field name="period" required="1"/>
+                                            <field name="date" required="1"/>
+                                            <field name="order_week" readonly="1"/>
+                                            <field name="hgm" invisible="1"/>
+                                            <field name="nang_trai"/>
+                                            <field name="nang_phai"/>
+                                            <field name="endometrium"/>
+                                            <field name="note_endometrium" />
+                                        </group>
+                                        <group string="Kết quả liên quan">
+                                            <field name="decision_id" required="1"/>
+                                            <field name="image" invisible="1" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}" style="float: left !important;"/>
+                                            <field name="note"/>
+                                            <field name="patient_id" invisible="1"/>
+                                            <field name="calendar_sa"/>
+                                            <field name="datetime_hcg"/>
+                                            <field name="calendar_tt" string="Lịch hẹn chọc hút noãn"/>
+                                            
+                                            <field name="endometrium_technical" invisible="1"/>
+                                            <field name="technical" invisible="1"/>
+                                            <field name="prescribe_icsi_ivf" string="Chỉ định" attrs="{'required': [('decision_id','=','trigger'),('endometrium_technical','=','ICSI/IVF')],'invisible': [('endometrium_technical','!=','ICSI/IVF')]}"/>
+                                            <field name="type_prescribe_icsi_ivf" readonly="1" attrs="{'invisible': [('prescribe_icsi_ivf','!=', 'other')]}"/>
+                                            <field name="date_et" string="Lịch hẹn ET"
+                                                attrs="{'invisible': [('prescribe_icsi_ivf', 'not in', ['ETD2','ETD3', 'ETD4', 'ETD5', 'ETD6'])]}"/>
+                                            <field name="thawing_ovum" />
+                                            <field name="date_thawing_ovum" attrs="{'invisible': [('thawing_ovum', '=', False)]}"/>
+                                            <field name="num_top_thawing_ovum" options='{"no_open": True, "no_create": True}'
+                                                attrs="{'invisible': [('thawing_ovum', '=', False)]}"
+                                                context="{'tree_view_ref': 'ims_utility.selection_value_simple_view_tree'}"/>
+                                        </group>
+                                    </group>
+                                    <notebook>
+                                        <page name="ovums_detail" string="Chi tiết 2 bên nang BT">
+                                            <group>
+                                                <group>
+                                                    <field name="right_ovary"/>
+                                                    <field name="note_right_ovary" />
+                                                </group>
+                                                <group>
+                                                    <field name="left_ovary"/>
+                                                    <field name="note_left_ovary" />
+                                                </group>
+                                            </group>
+                                            <field name="size_ids" nolabel="1">
+                                                <tree editable="bottom">
+                                                    <field name="size" required="1"/>
+                                                    <field name="qty_right"/>
+                                                    <field name="qty_left"/>
+                                                </tree>
+                                                <form>
+                                                    <group col="4">
+                                                        <field name="size" required="1"/>
+                                                        <field name="qty_right"/>
+                                                        <field name="qty_left"/>
+                                                    </group>
+                                                </form>
+                                            </field>
+                                        </page>
+                                        <page string="Chỉ số nội tiết" invisible="1">
+                                            <field name="index_hormonal_ids" nolabel="1">
+                                                <tree editable="bottom">
+                                                    <field name="name" required="1"/>
+                                                    <field name="value"/>
+                                                </tree>
+                                            </field>
+                                        </page>
+                                    </notebook>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="5" string="Chọc hút" attrs="{'invisible': ['|', ('gender','!=','female'), ('technical', '=', 'FET')]}" groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_midwife,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <group col="3">
+                                <group name="time_person_aspiration" string="Thời gian &amp; Nhân sự tham gia chọc hút">
+                                    <field name="date_choc_hut"/>
+                                    <field name="doctor_choc_hut" options="{'no_open': True, 'no_create': True}" context="{'default_is_doctor': 1}"/>
+                                    <field name="empl_choc_hut" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="anesthesiologist_id" options="{'no_open': True, 'no_create': True}"/>
+                                    <label for="qty_expected"/>
+                                    <div>
+                                        <field name="qty_expected" class="oe_inline"/> - 
+                                        <field name="qty_expected_text" class="oe_inline"/>
+                                    </div>
+                                    <label for="qty_choc_hut"/>
+                                    <div>
+                                        <field name="qty_choc_hut" class="oe_inline"/> - 
+                                        <field name="qty_choc_hut_text" class="oe_inline"/>
+                                    </div>
+                                    <label for="qty_ovum"/>
+                                    <div>
+                                        <field name="qty_ovum" class="oe_inline"/> - 
+                                        <field name="qty_ovum_text" class="oe_inline"/>
+                                    </div>
+                                </group>
+                                <group string="Tình trạng bệnh nhân khi chọc hút">
+                                    <field name="status_chochut" invisible="1"/>
+                                    <field name="blood_pressure" invisible="1"/>
+                                    <field name="heartbeat" invisible="1"/>
+                                    <field name="note_other" string="Ghi chú khác"/>
+                                    <field name="description"/>
+                                </group>
+                                <group string="Tình trạng bệnh nhân sau chọc hút">
+                                    <field name="status_after"/>
+                                    <field name="note_after"/>
+                                    <field name="solution"/>
+                                </group>
+                            </group>
+                            
+                                <group string="Ghi chú khác">
+                                    <field name="needle_id"/>
+                                    <field name="code_needle"/>
+                                    <field name="note_chochut"/>
+                                    <field name="form_chochut"/>
+                                </group>
+                                
+                            
+                        </page>
+                        <page name="9" string="Theo dõi nuôi cấy" attrs="{'invisible': ['|', ('gender','!=','female'), ('technical', '=', 'FET')]}" 
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <button style="margin-right: 5px;" name="%(ims_treatment.action_medical_take_away_archive)d" string="Mẫu mang đi trữ" type="action" class="oe_highlight btn" attrs="{'invisible': [('culture_ids','=',[])]}"/>
+
+                            <button style="margin-right: 5px;" name="%(ims_treatment.action_medical_take_away_transfer)d" string="Mẫu mang đi chuyển" type="action" class="oe_highlight btn" attrs="{'invisible': [('culture_ids','=',[])]}"/>
+                            <group>
+                                <group>
+                                    <field name="note_tinh_trung"/>
+                                    <field name="note_trung"/>
+                                </group>
+                                <group>
+                                    <field name="chidinh_phoi2"/>
+                                    <field name="chidinh_phoi3"/>
+                                    <field name="chidinh_phoi5"/>
+                                    <field name="assign_embryo_day_6"/>
+                                    <field name="assign_embryo_other" placeholder="Chỉ định trứng non, chỉ định phôi chậm..."/>
+                                </group>
+                            </group>
+                            <field name="culture_ids" nolabel="1" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"
+                                    widget="section_and_note_one2many"
+                                    options="{'always_reload': True}"
+                                    context="{'default_patient_id': patient_id, 'default_is_save': True,
+                                              'default_date_chochut': date_choc_hut, 'is_follow_treatment': 1,
+                                              'default_is_mau': True}">
+                                <tree editable="bottom" decoration-success="check_enviroment=='chan'" decoration-danger="check_enviroment=='le'">
+                                    <field name="date_chochut" invisible="1"/>
+                                    <field name="patient_id" invisible="1"/>
+                                    <field name="display_type" invisible="1"/>
+                                    <field name="id" invisible="1"/>
+                                    <field name="is_person" invisible="1"/>
+                                    <field name="is_time" invisible="1"/>
+                                    <field name="is_mau" invisible="1"/>
+                                    <field name="check_enviroment" invisible="1"/>
+                                    <field name="stt" invisible="1"/>
+                                    <field name="user_sequence" invisible="1"/>
+                                    <field name="has_sort" invisible="1"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" attrs="{'readonly': ['|',('is_person', '=', True),('is_time','=',True)]}" force_save="1"
+                                        widget="section_and_note_text"/>
+                                    <field name="day_info_0" options="{'always_reload': True}" context="{'default_day_of': 'day0', 'default_super_parent_id': id, 'default_super_parent_name': name, 'default_patient_id': patient_id, 'default_is_save': True, 'default_date_chochut': date_chochut, 'is_follow_treatment': 1, 'default_type': 'trung','default_is_time': is_time, 'default_is_person': is_person }" domain="[('day_of', '=', 'day0'), ('super_parent_name', '=', name), ('id', '=', False)]" attrs="{'readonly': [('is_person', '=', True)]}"/>
+                                    <field name="quick_day_info_0" string=" " attrs="{'invisible':[('day_info_0', '=', False)]}" widget="hierarchy_selection"/>
+                                    <field name="day_info_1"
+                                        options="{'always_reload': True, 'reload_on_button': True}"
+                                        context="{'default_day_of': 'day1', 'default_super_parent_id': id,
+                                                  'default_super_parent_name': name, 'default_patient_id': patient_id,
+                                                  'default_is_save': True, 'default_date_chochut': date_chochut,
+                                                  'is_follow_treatment': 1, 'default_type': 'hop_tu',
+                                                  'default_is_time': is_time, 'default_is_person': is_person }"
+                                        domain="[('day_of', '=', 'day1'), ('super_parent_name', '=', name), ('id', '=', False)]"/>
+                                    <field name="quick_day_info_1" string=" " attrs="{'invisible':[('day_info_1', '=', False)]}" widget="hierarchy_selection"/>
+                                    <field name="day_info_2"
+                                        options="{'always_reload': True, 'reload_on_button': True}"
+                                        context="{'default_day_of': 'day2', 'default_super_parent_id': id,
+                                                  'default_super_parent_name': name, 'default_patient_id': patient_id,
+                                                  'default_is_save': True, 'default_date_chochut': date_chochut,
+                                                  'is_follow_treatment': 1, 'default_type': 'phoi2', 'default_is_time': is_time,
+                                                  'default_is_person': is_person }"
+                                        domain="[('day_of', '=', 'day2'), ('super_parent_name', '=', name), ('id', '=', False)]"/>
+                                    <field name="quick_day_info_2" string=" " attrs="{'invisible':[('day_info_2', '=', False)]}" widget="hierarchy_selection"/>
+                                    <field name="day_info_3"
+                                        options="{'always_reload': True}"
+                                        context="{'default_day_of': 'day3', 'default_super_parent_id': id,
+                                                  'default_super_parent_name': name, 'default_patient_id': patient_id,
+                                                  'default_is_save': True, 'default_date_chochut': date_chochut,
+                                                  'is_follow_treatment': 1, 'default_type': 'phoi3',
+                                                  'default_is_time': is_time, 'default_is_person': is_person }"
+                                        domain="[('day_of', '=', 'day3'), ('super_parent_name', '=', name), ('id', '=', False)]"/>
+                                    <field name="quick_day_info_3" string=" " attrs="{'invisible':[('day_info_3', '=', False)]}" widget="hierarchy_selection"/>
+                                    <field name="day_info_4" context="{'default_day_of': 'day4', 'default_super_parent_id': id, 'default_super_parent_name': name, 'default_patient_id': patient_id, 'default_is_save': True, 'default_date_chochut': date_chochut, 'is_follow_treatment': 1, 'default_type': 'phoi4', 'default_is_time': is_time, 'default_is_person': is_person }" domain="[('day_of', '=', 'day4'), ('super_parent_name', '=', name), ('id', '=', False)]"/>
+                                    <field name="quick_day_info_4" string=" " attrs="{'invisible':[('day_info_4', '=', False)]}" widget="hierarchy_selection"/>
+                                    <field name="day_info_5" context="{'default_day_of': 'day5', 'default_super_parent_id': id, 'default_super_parent_name': name, 'default_patient_id': patient_id, 'default_is_save': True, 'default_date_chochut': date_chochut, 'is_follow_treatment': 1, 'default_type': 'phoi5', 'default_is_time': is_time, 'default_is_person': is_person }" domain="[('day_of', '=', 'day5'), ('super_parent_name', '=', name), ('id', '=', False)]"/>
+                                    <field name="quick_day_info_5" string=" " attrs="{'invisible':[('day_info_5', '=', False)]}" widget="hierarchy_selection"/>
+                                    <field name="day_info_6" context="{'default_day_of': 'day6', 'default_super_parent_id': id, 'default_super_parent_name': name, 'default_patient_id': patient_id, 'default_is_save': True, 'default_date_chochut': date_chochut, 'is_follow_treatment': 1, 'default_type': 'phoi6', 'default_is_time': is_time, 'default_is_person': is_person }" domain="[('day_of', '=', 'day6'), ('super_parent_name', '=', name), ('id', '=', False)]"/>
+                                    <field name="quick_day_info_6"  string=" " attrs="{'invisible':[('day_info_6', '=', False)]}" widget="hierarchy_selection"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <label for="day_info_0"/>
+                                            <div>
+                                                <field name="day_info_0" class="oe_inline"/>
+                                            </div>
+                                            <label for="day_info_1"/>
+                                            <div>
+                                                <field name="day_info_1" class="oe_inline"/>
+                                            </div>
+                                            <label for="day_info_2"/>
+                                            <div>
+                                                <field name="day_info_2" class="oe_inline"/>
+                                            </div>
+                                        </group>
+                                        <group>
+                                            <label for="day_info_3"/>
+                                            <div>
+                                                <field name="day_info_3" class="oe_inline"/>
+                                            </div>
+                                            <label for="day_info_4"/>
+                                            <div>
+                                                <field name="day_info_4" class="oe_inline"/>
+                                            </div>
+                                            <label for="day_info_5"/>
+                                            <div>
+                                                <field name="day_info_5" class="oe_inline"/>
+                                            </div>
+                                            <label for="day_info_6"/>
+                                            <div>
+                                                <field name="day_info_6" class="oe_inline"/>
+                                            </div>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="6" string="S.lượng trứng/hợp tử/phôi" attrs="{'invisible': ['|', ('gender','!=','female'), ('technical', '=', 'FET')]}" 
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <field name="manual_readonly_tab_doctor" invisible="1"/> 
+                            <group> 
+                                <group>
+                                    <field name="employee_htsss" invisible="1" options="{'no_open': True, 'no_create': True}" domain="[('is_employee','=',True)]" context="{'default_is_employee': 1}" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </group>
+                                <group></group>
+                            </group>
+                            <group col="6" string="Ngày 0">
+                                <field name="date_chochut_embryo" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                <label for="qty_puncture"/>
+                                <div>
+                                    <field name="qty_puncture" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_puncture_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_ovum_icsi"/>
+                                <div>
+                                    <field name="qty_ovum_icsi" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_ovum_icsi_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_m2"/>
+                                <div>
+                                    <field name="qty_m2" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_m2_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_deg"/>
+                                <div>
+                                    <field name="qty_deg" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_deg_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_degenerate"/>
+                                <div>
+                                    <field name="qty_degenerate" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_degenerate_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_m1"/>
+                                <div>
+                                    <field name="qty_m1" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_m1_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_archive"/>
+                                <div>
+                                    <field name="qty_archive" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_archive_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_continue"/>
+                                <div>
+                                    <field name="qty_continue" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_continue_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_gv"/>
+                                <div>
+                                    <field name="qty_gv" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_gv_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_cancel"/>
+                                <div>
+                                    <field name="qty_cancel" class="oe_inline"
+                                        style="max-width: 20% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_cancel_text" class="oe_inline"
+                                        style="max-width: 74% !important"
+                                        attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <field name="qty_m2_0" invisible="1"/>
+                            </group>
+                            <div class="o_horizontal_separator" style="margin-bottom: -5px;">Ngày 1</div>
+                            <group>
+                                <group>
+                                    <label for="qty_zygote"/>
+                                    <div>
+                                        <field name="qty_zygote" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_zygote_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                    <label for="qty_cancel_1"/>
+                                    <div>
+                                        <field name="qty_cancel_1" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_cancel_1_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                    <label for="qty_deg_1"/>
+                                    <div>
+                                        <field name="qty_deg_1" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_deg_1_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                    <label for="qty_nh3pn"/>
+                                    <div>
+                                        <field name="qty_nh3pn" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_nh3pn_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                </group>
+                                <group>
+                                    <label for="qty_2pn"/>
+                                    <div>
+                                        <field name="qty_2pn" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_2pn_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                    <label for="qty_1pn"/>
+                                    <div>
+                                        <field name="qty_1pn" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_1pn_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                    <label for="qty_3pn"/>
+                                    <div>
+                                        <field name="qty_3pn" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_3pn_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                    <label for="qty_1tb_1"/>
+                                    <div>
+                                        <field name="qty_1tb_1" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                        <field name="qty_1tb_1_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    </div>
+                                </group>
+                            </group>
+                            <field name="zygote_ids" nolabel="1" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}">
+                                <tree>
+                                    <!-- <field name="day"/> -->
+                                    <field name="year_old"/>
+                                    <field name="qty_embryo"/>
+                                    <field name="type_1"/>
+                                    <field name="type_2"/>
+                                    <field name="type_3"/>
+                                    <field name="type_4"/>
+                                    <field name="qty_slow"/>
+                                    <field name="qty_normal"/>
+                                    <field name="qty_fast"/>
+                                    <field name="qty_stop"/>
+                                    <field name="qty_embryo_transfer_zygote"/>
+                                    <field name="qty_sinh_thiet"/>
+                                    <field name="qty_archive"/>
+                                    <field name="qty_continue"/>
+                                    <field name="qty_cancel"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <!-- <field name="day" required="1"/> -->
+                                            <field name="qty_slow"/>
+                                            <field name="qty_normal"/>
+                                            <field name="qty_fast"/>
+                                            <field name="qty_stop"/>
+                                        </group>
+                                        <group>
+                                            <field name="year_old"/>
+                                            <field name="qty_embryo"/>
+                                            <field name="type_1"/>
+                                            <field name="type_2"/>
+                                            <field name="type_3"/>
+                                            <field name="type_4"/>
+                                            <field name="qty_continue"/>
+                                            <field name="qty_embryo_transfer_zygote"/>
+                                            <field name="qty_sinh_thiet"/>
+                                            <field name="qty_archive"/>
+                                            <field name="qty_cancel"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                            <group col="6" string="Kết quả nuôi trứng non" name="ket_qua_trung_non">
+                                <label for="qty_gv_m1_tt_m2"/>
+                                <div>
+                                    <field name="qty_gv_m1_tt_m2" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_gv_m1_tt_m2_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                                <label for="qty_ovum_from_m2"/>
+                                <div>
+                                    <field name="qty_ovum_from_m2" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>,
+                                    <field name="qty_ovum_from_m2_text" class="oe_inline" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </div>
+                            </group>
+                            <field name="egg_folow_ids" nolabel="1" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}">
+                                <tree>
+                                    <!-- <field name="day"/> -->
+                                    <field name="year_old"/>
+                                    <field name="qty_embryo"/>
+                                    <field name="type_1"/>
+                                    <field name="type_2"/>
+                                    <field name="type_3"/>
+                                    <field name="qty_embryo_transfer_zygote"/>
+                                    <field name="qty_sinh_thiet"/>
+                                    <field name="qty_archive"/>
+                                    <field name="qty_continue"/>
+                                    <field name="qty_cancel"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <group>
+                                            <field name="year_old"/>
+                                            <field name="qty_embryo"/>
+                                            <field name="type_1"/>
+                                            <field name="type_2"/>
+                                            <field name="type_3"/>
+                                        </group>
+                                        <group>
+                                            <field name="qty_continue"/>
+                                            <field name="qty_embryo_transfer_zygote"/>
+                                            <field name="qty_sinh_thiet"/>
+                                            <field name="qty_archive"/>
+                                            <field name="qty_cancel"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page name="3" string="Lọc rửa tinh trùng" attrs="{'invisible': [('gender','!=','male')]}" 
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <group col="3">
+                                <group string="Thông tin lọc">
+                                    <field name="date_filter" readonly="1"/>
+                                    <field name="date_sample" readonly="1"/>
+                                    <field name="date_received" readonly="1"/>
+                                    <field name="is_fresh" readonly="1"/>
+                                    <field name="date_kieng_xt" readonly="1"/>
+                                    <field name="is_td_archive" readonly="1"/>
+                                    <field name="is_td_receive" readonly="1"/>
+                                    <field name="is_tt_archive" readonly="1"/>
+                                    <field name="is_fresh_pt" readonly="1" invisible="1"/>
+                                    <field name="is_fresh_bank" readonly="1" invisible="1"/>
+                                </group>
+                                <group string="Nhân sự lọc rửa" readonly="1" invisible="1">
+                                    <field name="filter_main_id" options="{'no_open': True, 'no_create': True}" readonly="1" context="{'default_is_employee': 1}"/>
+                                    <field name="check_main_id" options="{'no_open': True, 'no_create': True}" readonly="1" context="{'default_is_employee': 1}"/>
+                                    <field name="filter_ids" options="{'no_open': True, 'no_create': True}" readonly="1" widget="many2many_tags" context="{'default_is_employee': 1}"/>
+                                    <field name="check_ids" readonly="1" widget="many2many_tags" context="{'default_is_employee': 1}"/>
+                                </group>
+                                <group string="Chất lượng tinh trùng trước lọc rửa">
+                                    <field name="volume" readonly="1"/>
+                                    <field name="density" readonly="1"/>
+                                    <field name="mobility" readonly="1"/>
+                                    <field name="percent_pr" readonly="1"/>
+                                    <field name="percent_np" readonly="1"/>
+                                    <field name="percent_im" readonly="1"/>
+                                    <field name="shape_normal" readonly="1"/>
+                                    <field name="evaluation_detail" readonly="1"/>
+                                    <field name="date_filter_bf" />
+                                    <field name="date_sample_bf" string="Giờ hoàn thành lọc rửa" readonly="1"/>
+                                    <field name="method_filter" readonly="1"/>
+                                    <field name="environment_filter" readonly="1" />
+                                </group>
+                                <group string="Chất lượng tinh trùng sau lọc rửa">
+                                    <field name="volume_after"/>
+                                    <field name="density_after"/>
+                                    <field name="note_pr" string="PR"/>
+                                    <field name="note_np" string="NP"/>
+                                    <field name="note_im"/>
+                                    <field name="shape_normal_aft"/>
+                                    <field name="total_sperm_aft"/>
+                                    <field name="note_other"/>
+                                    <!-- <field name="evaluation_detail_aft"/> -->
+                                </group>
+                            </group>
+
+                            <group>
+                                <group string="Những theo dõi khác" invisible="1">
+                                    <field name="is_follow_other" readonly="1"/>
+                                    <field name="follow" readonly="1" attrs="{'invisible': [('is_follow_other','!=',True)]}"/>
+                                    
+                                    <separator string="Swim up" readonly="1" attrs="{'invisible': [('follow','not in',('Swimup','All'))]}"/>
+                                    <field name="centrifuge_id" readonly="1" attrs="{'invisible': [('follow','not in',('Swimup','All'))]}"/>
+                                    <field name="spin_speed" readonly="1" attrs="{'invisible': [('follow','not in',('Swimup','All'))]}"/>
+                                    <field name="type_tube" readonly="1" attrs="{'invisible': [('follow','not in',('Swimup','All'))]}"/>
+                                    
+                                    <separator string="Gradiant" readonly="1" attrs="{'invisible': [('follow','not in',('Gradiant','All'))]}"/>
+                                    <field name="centrifuge_gradiant_id" readonly="1" attrs="{'invisible': [('follow','not in',('Gradiant','All'))]}"/>
+                                    <field name="spin_speed_gradiant" readonly="1" attrs="{'invisible': [('follow','not in',('Gradiant','All'))]}"/>
+                                    <field name="filtering" readonly="1" attrs="{'invisible': [('follow','not in',('Gradiant','All'))]}"/>
+                                    <field name="washing_1" readonly="1" attrs="{'invisible': [('follow','not in',('Gradiant','All'))]}"/>
+                                    <field name="washing_2" readonly="1" attrs="{'invisible': [('follow','not in',('Gradiant','All'))]}"/>
+                                </group>
+                                <group invisible="1">
+                                    <field name="fragmentation" readonly="1"/>
+                                    <field name="ros" readonly="1"/>
+                                    <field name="follow_other" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <!-- attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),]}" -->
+                        <page name="4" string="Kết quả phẫu thuật tinh hoàn" attrs="{'invisible': [('gender','!=','male')]}" 
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <group name="info">
+                                <group string="Thông tin &amp; nhân sự tham gia phẫu thuật">
+                                    <field name="datetime_pt" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                    <field name="surgeon_id" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"
+                                        options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="nhs_support" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"
+                                        options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="expert_lab_id" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"
+                                        options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="diagnostic_id" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"
+                                        options="{'no_open': True, 'no_create': True}"/>
+                                </group>
+                                <group string="Kết quả phẫu thuật">
+                                    <field name="result_after_pt" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                    <field name="note_pt" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                </group>
+                            </group>
+                            <group name="result_surgery">
+                                <group string="Kết quả phẫu thuật - Đại thể">
+                                    <field name="maotinh_left" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                    <field name="maotinh_right" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                    <field name="tissue_left" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                    <field name="tissue_right" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                </group>
+                                <group string="Kết quả phẫu thuật - Vi thể">
+                                    <field name="corpuscle" attrs="{'readonly': ['|',('manual_readonly_tab_doctor','=',False),('technical','==','surgery_testis')]}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="10" string="Chi tiết mẫu trữ"
+                                attrs="{'invisible': [('gender', '=', 'female')]}"
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <!-- <separator string="Mẫu mang đi trữ" attrs="{'invisible': [('gender','!=','female')]}"/> -->
+                            <!-- <button name="%(action_medical_take_away_archive)d" string="Tạo phiếu chờ trữ" type="action" context="{'archive': True}" class="oe_highlight" attrs="{'invisible': ['|',('culture_archive_ids','=',[]),('gender','!=','female')]}"/> -->
+                            <!-- <field name="culture_archive_ids" nolabel="1" readonly="1" attrs="{'invisible': [('gender','!=','female')]}" context="{'is_invisible_button_next': 1}"/> -->
+                            <separator string="Phiếu chờ trữ"/>
+                            <button name="%(action_create_waiting_archive_male_popup)d" string="Tạo phiếu chờ trữ" type="action" class="oe_highlight" attrs="{'invisible': [('gender','!=','male')]}"/>
+                            <field name="waiting_archive_ids" nolabel="1" readonly="1"/>
+                            <separator string="Chi tiết trữ Nam" attrs="{'invisible': [('gender','!=','male')]}"/>
+                            <separator string="Chi tiết trữ Nữ" attrs="{'invisible': [('gender','!=','female')]}"/>
+                            <field name="archive_semen_ids" nolabel="1" context="{'default_type': 'semen', 'default_state': 'archive', 'default_patient_id': patient_id, 'is_follow_male': True}" 
+                                domain="[('patient_id','=', patient_id),('type_template','in',('semen','sperm_pt','sperm'))]" attrs="{'invisible': [('gender','!=','male')]}" readonly="1"/>
+                            <field name="archive_zygote_ids" nolabel="1" context="{'default_type': 'zygote', 'default_state': 'archive', 'default_patient_id': patient_id, 'is_follow_female': True}" 
+                                domain="[('patient_id','=', patient_id),('type_template','in',('ovum','zygote','embryos'))]" attrs="{'invisible': [('gender','!=','female')]}" readonly="1"/>
+                        </page>
+                        <page name="11" string="Chi tiết mẫu rã" groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <separator string="Chi tiết rã Nam" attrs="{'invisible': [('gender','!=','male')]}"/>
+                            <separator string="Chi tiết rã Nữ" attrs="{'invisible': [('gender','!=','female')]}"/>
+                            <!-- <button name="%(action_medical_decay_template_popup)d" string="Rã đợt này" type="action" class="oe_highlight" attrs="{'invisible': [('technical','=','FET')]}"/> -->
+                            <button name="%(action_medical_decay_template_all_popup)d" string="Mẫu mang đi rã"
+                                type="action" class="oe_highlight" attrs="{'invisible': [('is_xin_tt_nam', '=', True)]}"/>
+                            <button style="margin-left: 5px;" string="Rã ngân hàng" type="action"
+                                name="%(action_medical_decay_template_bank_popup)d" class="oe_highlight btn"
+                                attrs="{'invisible': [('is_xin_tt_nam', '=', False)]}"/>
+                            <field name="decay_semen_ids" nolabel="1" context="{'default_type': 'semen', 'default_state': 'decay', 'default_patient_id': patient_id, 'is_follow_male': True}" 
+                                domain="[]" attrs="{'invisible': [('gender','!=','male')]}">
+                                <tree>
+                                    <field name="canes_id"/>
+                                    <field name="code" attrs="{'column_invisible': [('parent.is_xin_tt_nam', '=', True)]}"/>
+                                    <field name="code_bank" attrs="{'column_invisible': [('parent.is_xin_tt_nam', '=', False)]}"/>
+                                    <field name="tool_archive_id"/>
+                                    <field name="location"/>
+                                    <field name="archive_qty"/>
+                                    <field name="date"/>
+                                    <field name="date_deadline"/>
+                                </tree>
+                            </field>
+                            <field name="decay_zygote_ids" nolabel="1" context="{'default_type': 'zygote', 'default_state': 'decay', 'default_patient_id': patient_id, 'is_follow_female': True}" 
+                                domain="[('type','=','zygote'),('state','in',['decay', 'wait_decay'])]" attrs="{'invisible': [('gender','!=','female')]}">
+                                <tree>
+                                    <field name="canes_id"/>
+                                    <field name="code" attrs="{'column_invisible': [('parent.is_xin_tt_nam', '=', True)]}"/>
+                                    <field name="code_bank" attrs="{'column_invisible': [('parent.is_xin_tt_nam', '=', False)]}"/>
+                                    <field name="tool_archive_id"/>
+                                    <field name="location"/>
+                                    <field name="archive_qty"/>
+                                    <field name="date"/>
+                                    <!-- <field name="state"/> -->
+                                    <field name="date_deadline"/>
+                                </tree>
+                            </field>
+                            <separator string="Phiếu chờ rã"/>
+                            <field name="waiting_decay_ids" nolabel="1" readonly="1"/>
+                            <separator string="Mã mẫu rã" attrs="{'invisible': [('gender','!=','female')]}"/>
+                            <field name="culture_decay_ids" nolabel="1" domain="[('is_history','=',False)]" attrs="{'invisible': [('gender','!=','female')]}" context="{'is_invisible_button_next': 1}">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="type"/>
+                                    <field name="info_type"/>
+                                    <field name="decision_id"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page name="12" string="Thông tin phôi chuyển" attrs="{'invisible': [('gender','!=','female')]}" 
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <group>
+                                <group string="Chuyển phôi tươi">
+                                    <field name="qty_fresh_embryos_transfer" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <div>
+                                        <field name="fresh_embryos_transfer_day_2" string="Ngày 2" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                        <label for="fresh_embryos_transfer_day_2"/>
+                                    </div>
+                                    <div>
+                                        <field name="fresh_embryos_transfer_day_3" string="Ngày 3" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                        <label for="fresh_embryos_transfer_day_3"/>
+                                    </div>
+                                    <div>
+                                        <field name="fresh_embryos_transfer_day_4" />
+                                        <label for="fresh_embryos_transfer_day_4"/>
+                                    </div>
+                                    <div>
+                                        <field name="fresh_embryos_transfer_day_5" string="Ngày 5" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                        <label for="fresh_embryos_transfer_day_5"/>
+                                    </div>
+                                    <div>
+                                        <field name="fresh_embryos_transfer_day_6" string="Ngày 6" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                        <label for="fresh_embryos_transfer_day_6"/>
+                                    </div>
+                                    <field name="fresh_embryos_transfer_level_1" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="fresh_embryos_transfer_level_2" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="fresh_embryos_transfer_level_3" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="qty_fresh_embryos_cancel" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="qty_fresh_embryos_stockpiled_in_stock" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="13" string="Chuyển phôi" attrs="{'invisible': [('gender','!=','female')]}" 
+                        groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <group>
+                                <group string="Thời gian &amp; Nhân sự tham gia chuyển phôi">
+                                    <field name="date_transfer" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="doctor_transfer_id" options="{'no_open': True, 'no_create': True}" context="{'default_is_doctor': 1}" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="empl_transfer_id" options="{'no_open': True, 'no_create': True}" context="{'default_is_employee': 1}" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="empl_lab_load_id" options="{'no_open': True, 'no_create': True}" context="{'default_is_employee': 1}" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="empl_lab_check_id" options="{'no_open': True, 'no_create': True}" context="{'default_is_employee': 1}" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="note_empl" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </group>
+                                <group string="Tình trạng chuyển phôi">
+                                    <field name="transfer_embryo" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="is_easy" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="is_difficult" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="is_transfer_2" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="is_pozzi" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="is_sot_phoi" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="image_embryo_transfer" widget="image" class="oe_avatar"
+                                        options="{'zoom': true,'field_zoom': 'image_embryo_transfer'}"
+                                        style="float: left !important;" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Ghi chú khác">
+                                    <field name="catheter_id" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="type_catheter" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="note_type" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </group>
+                                <group string="Độ sạch của Catheter sau chuyển phôi">
+                                    <field name="is_clean" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="is_viscous" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="viscous" attrs="{'invisible': [('is_viscous','!=',True)], 'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="is_blood" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="blood" attrs="{'invisible': [('is_blood','!=',True)], 'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="is_tool_support" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="note_tool_support" attrs="{'invisible': [('is_tool_support','!=','yes')]}"/>
+                                    <field name="is_anesthesia" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                    <field name="note_anesthesia" attrs="{'invisible': [('is_anesthesia','!=','yes')]}"/>
+                                </group>
+                                <group>
+                                    <field name="status_tranfer" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+
+                        <page name="14" string="Bảng kiểm quy trình"  invisible="1"
+                                attrs="{'invisible': [('gender', '=', 'female')]}"
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <field name="process_ids" nolabel="1" attrs="{'readonly': [('manual_readonly_tab_doctor','=',False)]}">
+                                <tree string="Bảng kiểm quy trình">
+                                    <field name="date"/>
+                                    <field name="stage_id"/>
+                                    <field name="performer_id" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="checker_id" options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="note"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page name="16" string="Gửi yêu cầu" invisible="1" 
+                                groups="base.group_no_one,ims_treatment.group_manager,ims_treatment.group_doctor,ims_treatment.group_lab,ims_treatment.group_male_clinics">
+                            <field name="transfer_ids" nolabel="1" context="{'default_patient_id': patient_id, 'default_role': role}">
+                                <tree string="Gửi yêu cầu">
+                                    <field name="stt" invisible="1"/>
+                                    <field name="name"/>
+                                    <field name="role"/>
+                                    <field name="request"/>
+                                    <field name="notes"/>
+                                    <field name="transfer_to"/>
+                                    <field name="is_emergency"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Tư vấn" invisible="1" >
+                            <field name="consulting_ids" nolabel="1" context="{'patient_id': patient_id, 'gender': gender}" />
+                        </page>
+                        
+                        <page name="7" string="Phẫu thuật tinh hoàn" invisible="1" >
+                            <field name="male_ids" nolabel="1" context="{'default_patient_id': patient_id, 'default_role': role, 'default_mobile': mobile, 'default_technical': 'surgery_testis', 'is_follow_male': 1}">
+                                <tree string="Theo dõi điều trị nam">
+                                    <field name="stt_male" invisible="1"/>
+                                    <field name="name"/>
+                                    <field name="times_use"/>
+                                    <field name="birthday"/>
+                                    <field name="role"/>
+                                    <field name="gender"/>
+                                    <field name="doctor_id"/>
+                                    <field name="notes"/>
+                                    <field name="mobile"/>
+                                    <field name="stage_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="8" string="Bơm tinh trùng" invisible="1" ><!--  attrs="{'readonly': [('manual_readonly_tab_lab','=',False)]}" -->
+                            <group>
+                                <group string="Ngày giờ và nhân sự tham gia bơm tinh trùng">
+                                    <field name="date_pump"/>
+                                    <field name="doctor_pump" context="{'default_is_doctor': 1}"/>
+                                    <field name="employee_pump" context="{'default_is_employee': 1}"/>
+                                </group>
+                                <group string="Tình trạng khi bơm tinh trùng">
+                                    <field name="status_pump"/>
+                                    <field name="note_pump"/>
+                                    <field name="is_pump_2"/>
+                                    <field name="note_pump_2"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Dụng cụ bơm tinh trùng">
+                                    <field name="catheter_pump_id" context="{'default_supplier': 1, 'default_customer': 0}"/>
+                                    <field name="type_tool_pump"/>
+                                    <field name="note_type_tool"/>
+                                </group>
+                                <group string="Độ sạch của catheter khi bơm tinh trùng">
+                                    <field name="is_clean_catheter"/>
+                                    <field name="is_viscous_catheter"/>
+                                    <field name="viscous_catheter" attrs="{'invisible': [('is_viscous_catheter','!=',True)]}"/>
+                                    <field name="is_blood_catheter"/>
+                                    <field name="blood_catheter" attrs="{'invisible': [('is_blood_catheter','!=',True)]}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Dụng cụ hỗ trợ">
+                                    <field name="is_use_tool"/>
+                                    <field name="note_use_tool" attrs="{'invisible': [('is_use_tool','!=','yes')]}"/>
+                                </group>
+                                <group string="Thông tin khác">
+                                    <field name="note_pump_other"/>
+                                    <label for ="note_pump_other_2" string=""/>
+                                    <div>
+                                        <field name="note_pump_other_2" placeholder="Ghi chú chi tiết khác...."/>
+                                    </div>
+                                    <field name="status_pump_after"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="15" string="Giấy tờ điều trị">
+                            <field name="papers_ivf_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="name_ivf" />
+                                    <field name="detail_ivf_file" widget="binary" filename="file_ivf_name"/>
+                                    <field name="file_ivf_name" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medical_treatment_icsi_ivf_tree" model="ir.ui.view">
+        <field name="name">view.medical.treatment.icsi.ivf.tree</field>
+        <field name="model">medical.treatment</field>
+        <field name="arch" type="xml">
+            <tree string="Theo dõi điều trị ICSI/IVF" delete="false">
+                <field name="name"/>
+                <field name="technique_id"/>
+                <!--<field name="patient_code"/>-->
+                <field name="patient_name"/>
+                <field name="internal_ref"/>
+                <field name="gender" invisible="1"/>
+                <field name="role"/>
+                <field name="birthday"/>
+                <field name="doctor_id"/>
+                <field name="note_doctor"/>
+                <field name="start_date"/>
+                <field name="times_use"/>
+                <!--<field name="mobile"/>-->
+                <field name="state_id"/>
+                <field name="create_uid"/>
+				<!--<field name="create_date"/>-->
+                <field name="is_ovum"/>
+                <field name="notes"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_medical_treatment_icsi_ivf_tree_reception_listing" model="ir.ui.view">
+        <field name="name">view.medical.treatment.icsi.ivf.tree.reception.listing</field>
+        <field name="model">medical.treatment</field>
+        <field name="arch" type="xml">
+            <tree string="Theo dõi điều trị ICSI/IVF" create="0" delete="0" editable="bottom">
+                <field name="name" readonly="1" />
+                <field name="technique_id" readonly="1"/>
+                <field name="patient_name" readonly="1" />
+                <field name="internal_ref" readonly="1" />
+                <field name="gender" invisible="1" readonly="1"/>
+                <field name="role" readonly="1" />
+                <field name="birthday" readonly="1"/>
+                <field name="doctor_id" readonly="1"/>
+                <field name="note_doctor" readonly="1"/>
+                <field name="times_use" readonly="1" />
+                <field name="state_id" readonly="1" />
+                <field name="create_uid" readonly="1" />
+                <field name="is_ovum" readonly="1"/>
+                <field name="notes" readonly="1" />
+                <button type="object" name="action_view_form_treatment" icon="fa-external-link" class="oe_stat_button" context="{'only_view_form': True}"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_medical_treatment_icsi_ivf_search" model="ir.ui.view">
+        <field name="name">view.medical.treatment.icsi.ivf.search</field>
+        <field name="model">medical.treatment</field>
+        <field name="arch" type="xml">
+            <search string="Theo dõi điều trị ICSI/IVF">
+                <field name="name" filter_domain="['|', '|', '|', '|', '|', ('name','ilike',self), ('patient_code','ilike',self), ('patient_id','ilike',self), ('doctor_id','ilike',self), ('mobile','ilike',self), ('stage_id','ilike',self)]"/>
+                <field name="technique_id"/>
+                <field name="role"/>
+                <field name="gender"/>
+                <field name="note_doctor"/>
+                <separator/>
+                <filter string="Tái khám SA" name="ultrasound_appointment_schedule"
+                    context="{'ultrasound_appointment_schedule': True}"/>
+                <group expand="0" string="Group By">
+                    <filter string="Bệnh nhân" name="patient_id" context="{'group_by':'patient_id'}"/>
+                    <filter string="Giới tính" name="gender" context="{'group_by':'gender'}"/>
+                    <filter string="Vai trò" name="role" context="{'group_by':'role'}"/>
+                    <filter string="Bác sĩ" name="doctor_id" context="{'group_by':'doctor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_treatment_icsi_ivf" model="ir.actions.act_window">
+        <field name="name">Theo dõi điều trị ICSI/IVF</field>
+        <field name="res_model">medical.treatment</field>
+        <field name="view_mode">form,tree</field>
+        <field name="context">{'default_technical': 'ICSI/IVF', 'is_icsi': 1, 'is_not_lab': 1, 'is_menu_doctor': 1}</field>
+        <field name="domain">[('technical','=','ICSI/IVF'),('gender', '=', 'female')]</field>
+        <field name="search_view_id" ref="view_medical_treatment_icsi_ivf_search"/>
+    </record>
+
+    <record id="action_treatment_icsi_ivf_tree" model="ir.actions.act_window.view">
+        <field eval="0" name="sequence"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_medical_treatment_icsi_ivf_tree"/>
+        <field name="act_window_id" ref="action_treatment_icsi_ivf"/>
+    </record>
+
+    <record id="action_treatment_icsi_ivf_form" model="ir.actions.act_window.view">
+        <field eval="1" name="sequence"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_medical_treatment_icsi_ivf_form"/>
+        <field name="act_window_id" ref="action_treatment_icsi_ivf"/>
+    </record>
+
+</odoo>
